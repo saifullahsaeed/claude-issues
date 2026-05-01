@@ -7,13 +7,16 @@ import { show } from "./commands/show.js";
 import { fix } from "./commands/fix.js";
 import { reopen } from "./commands/reopen.js";
 import { note } from "./commands/note.js";
+import { link } from "./commands/link.js";
+import { wontfix } from "./commands/wontfix.js";
+import { view } from "./commands/view.js";
 
 const program = new Command();
 
 program
   .name("claude-issues")
   .description("Persistent markdown issue ledger for Claude Code projects.")
-  .version("0.1.0");
+  .version("0.2.0");
 
 program
   .command("init")
@@ -27,6 +30,8 @@ program
   .option("-s, --severity <severity>", "low | medium | high | critical")
   .option("-f, --files <files>", "Comma-separated file paths")
   .option("-d, --description <text>", "Short description")
+  .option("--supersedes <id>", "Mark this new issue as a replacement for an older issue")
+  .option("--no-scan", "Skip the duplicate-detection scan")
   .action(wrap((opts) => add(opts)));
 
 program
@@ -35,6 +40,7 @@ program
   .description("List issues (default: open)")
   .option("--open", "Open issues only (default)")
   .option("--fixed", "Fixed issues only")
+  .option("--archive", "Archived issues only (wontfix · superseded · duplicate)")
   .option("--all", "All issues")
   .action(wrap((opts) => list(opts)));
 
@@ -51,13 +57,34 @@ program
 
 program
   .command("reopen <id>")
-  .description("Move a fixed issue back to open/")
+  .description("Reopen any closed issue (fixed/wontfix/superseded/duplicate → open)")
   .action(wrap((id) => reopen(id)));
 
 program
   .command("note <id> <text>")
   .description("Append a timestamped progress note to an issue")
   .action(wrap((id, text) => note(id, text)));
+
+program
+  .command("wontfix <id>")
+  .description("Close an issue without fixing")
+  .option("-n, --note <text>", "Reason note")
+  .action(wrap((id, opts) => wontfix(id, opts)));
+
+program
+  .command("link <id>")
+  .description("Link an issue to another (supersedes / duplicate-of / related)")
+  .option("--supersedes <id>", "<id> replaces an older issue (older becomes superseded)")
+  .option("--duplicate-of <id>", "Mark <id> as duplicate of another (closed)")
+  .option("--related <id>", "Add a bidirectional related link to another issue")
+  .option("--unrelated <id>", "Remove a related link")
+  .action(wrap((id, opts) => link(id, opts)));
+
+program
+  .command("view [id]")
+  .description("Open the browser viewer for the project ledger or a single issue")
+  .option("--no-open", "Print the URL but don't auto-open the browser")
+  .action(wrap((id, opts) => view(id, opts)));
 
 program.parseAsync(process.argv).catch((err) => {
   console.error(chalk.red("✗"), err instanceof Error ? err.message : String(err));

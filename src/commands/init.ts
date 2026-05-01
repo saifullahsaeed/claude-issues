@@ -3,14 +3,25 @@ import path from "node:path";
 import chalk from "chalk";
 import { resolvePaths } from "../paths.js";
 import { regenerateIndex } from "../index-md.js";
+import { regenerateHtml } from "../html.js";
+import { printViewerLink } from "../output.js";
 
-const CLAUDE_MD_POINTER = `\n## Issue ledger\n\nThis project uses \`claude-issues\` for cross-session issue tracking. Read \`.claude-issues/INDEX.md\` to see what's open and fixed before starting work. See https://www.npmjs.com/package/claude-issues.\n`;
+const CLAUDE_MD_POINTER = `\n## Issue ledger\n\nThis project uses \`claude-issues\` for cross-session issue tracking. Read \`.claude-issues/INDEX.md\` to see what's open, fixed, and archived before starting work. Browser view: \`.claude-issues/_html/index.html\`. See https://www.npmjs.com/package/claude-issues.\n`;
 
 export function init(): void {
   const paths = resolvePaths();
   fs.mkdirSync(paths.open, { recursive: true });
   fs.mkdirSync(paths.fixed, { recursive: true });
+  fs.mkdirSync(paths.archive, { recursive: true });
+  fs.mkdirSync(paths.html, { recursive: true });
   regenerateIndex(paths);
+  regenerateHtml(paths);
+
+  // make sure _html stays out of git when present
+  const giAttr = path.join(paths.root, ".gitignore");
+  if (!fs.existsSync(giAttr)) {
+    fs.writeFileSync(giAttr, "_html/\n", "utf8");
+  }
 
   const claudeMd = path.join(paths.cwd, "CLAUDE.md");
   if (fs.existsSync(claudeMd)) {
@@ -23,6 +34,7 @@ export function init(): void {
 
   console.log(chalk.green("✓"), `Initialized ${chalk.cyan(".claude-issues/")} in ${paths.cwd}`);
   console.log(`  ${chalk.dim("→")} ${chalk.cyan(".claude-issues/INDEX.md")}`);
-  console.log(`  ${chalk.dim("→")} ${chalk.cyan(".claude-issues/open/")}`);
-  console.log(`  ${chalk.dim("→")} ${chalk.cyan(".claude-issues/fixed/")}`);
+  console.log(`  ${chalk.dim("→")} ${chalk.cyan(".claude-issues/open/")}, ${chalk.cyan("fixed/")}, ${chalk.cyan("archive/")}`);
+  console.log(`  ${chalk.dim("→")} ${chalk.cyan(".claude-issues/_html/index.html")} (browser view)`);
+  printViewerLink(paths);
 }

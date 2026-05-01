@@ -35,12 +35,20 @@ export function listFixed(paths: Paths): Issue[] {
   return readDir(paths.fixed);
 }
 
+export function listArchive(paths: Paths): Issue[] {
+  return readDir(paths.archive);
+}
+
 export function listAll(paths: Paths): Issue[] {
-  return [...listOpen(paths), ...listFixed(paths)];
+  return [...listOpen(paths), ...listFixed(paths), ...listArchive(paths)];
 }
 
 export function moveIssue(issue: Issue, targetDir: string): Issue {
+  fs.mkdirSync(targetDir, { recursive: true });
   const newPath = path.join(targetDir, path.basename(issue.filePath));
+  if (path.resolve(newPath) === path.resolve(issue.filePath)) {
+    return issue;
+  }
   fs.renameSync(issue.filePath, newPath);
   return { ...issue, filePath: newPath };
 }

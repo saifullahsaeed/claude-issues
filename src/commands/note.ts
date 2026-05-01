@@ -3,6 +3,8 @@ import { resolvePaths, ensureInitialized } from "../paths.js";
 import { findIssueFile } from "../ids.js";
 import { readIssue, writeIssue } from "../storage.js";
 import { regenerateIndex } from "../index-md.js";
+import { regenerateHtml } from "../html.js";
+import { printViewerLink } from "../output.js";
 import type { Issue } from "../types.js";
 
 const FIX_NOTES_HEADER = "## Fix notes";
@@ -37,6 +39,8 @@ export function note(id: string, text: string): void {
   const updated = appendFixNote(issue, text);
   writeIssue(updated);
   regenerateIndex(paths);
+  regenerateHtml(paths);
 
   console.log(chalk.green("✓"), `Note added to ${chalk.cyan(updated.frontmatter.id)}`);
+  printViewerLink(paths, updated);
 }

@@ -38,14 +38,18 @@ function listIssueIds(dir: string): number[] {
 }
 
 export function nextId(paths: Paths): string {
-  const all = [...listIssueIds(paths.open), ...listIssueIds(paths.fixed)];
+  const all = [
+    ...listIssueIds(paths.open),
+    ...listIssueIds(paths.fixed),
+    ...listIssueIds(paths.archive),
+  ];
   const max = all.length === 0 ? 0 : Math.max(...all);
   return `ISSUE-${String(max + 1).padStart(3, "0")}`;
 }
 
 export function findIssueFile(paths: Paths, id: string): string | null {
   const normalized = normalizeId(id);
-  for (const dir of [paths.open, paths.fixed]) {
+  for (const dir of [paths.open, paths.fixed, paths.archive]) {
     if (!fs.existsSync(dir)) continue;
     for (const entry of fs.readdirSync(dir)) {
       if (entry.startsWith(`${normalized}-`)) {

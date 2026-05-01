@@ -7,8 +7,8 @@
     {
       "name": "claude-issues",
       "source": "./plugins/claude-issues",
-      "description": "Persistent markdown issue ledger so Claude knows what's open vs. fixed across sessions.",
-      "version": "0.1.0",
+      "description": "Persistent markdown issue ledger with browser viewer, status audit, and cross-issue links for Claude Code projects.",
+      "version": "0.2.0",
       "category": "workflow",
       "tags": ["issues", "tracking", "workflow", "cli"]
     }

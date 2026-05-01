@@ -1,7 +1,7 @@
 {
   "name": "claude-issues",
-  "version": "0.1.0",
-  "description": "Persistent markdown-based issue ledger for Claude Code projects. Tracks open and fixed issues across sessions.",
+  "version": "0.2.0",
+  "description": "Persistent markdown-based issue ledger for Claude Code projects with browser viewer, statuses, and audit links across sessions.",
   "keywords": [
     "claude",
     "claude-code",
@@ -32,6 +32,7 @@
     "cli-table3": "^0.6.5",
     "commander": "^12.1.0",
     "gray-matter": "^4.0.3",
+    "marked": "^14.1.2",
     "prompts": "^2.4.2"
   },
   "devDependencies": {
