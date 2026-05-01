@@ -33,8 +33,16 @@ Run the appropriate subcommand. Map short forms:
 - `/issues link 8 related 3` → `node "${CLAUDE_PLUGIN_ROOT}/bin/cli.cjs" link 8 --related 3`
 - `/issues view` → `node "${CLAUDE_PLUGIN_ROOT}/bin/cli.cjs" view`
 - `/issues view 3` → `node "${CLAUDE_PLUGIN_ROOT}/bin/cli.cjs" view 3`
+- `/issues serve` → `node "${CLAUDE_PLUGIN_ROOT}/bin/cli.cjs" serve`
+- `/issues serve 8080` → `node "${CLAUDE_PLUGIN_ROOT}/bin/cli.cjs" serve --port 8080`
 
 After running, briefly summarize the outcome and **always include the
-`View: file://…` URL** the CLI printed at the end so the user can click
-it to open the rendered ledger in a browser. If `.claude-issues/` doesn't
-exist yet, suggest `/issues init`.
+viewer URL the CLI printed** at the end of your reply, formatted as a
+markdown link (e.g. `[View ledger](file:///…)` or `[View ledger](http://localhost:47829/)`),
+**not** wrapped in backticks. Backticks render as inline code and are
+not clickable.
+
+If a `file://` link is not clickable in the user's environment (some
+chat UIs strip them), suggest `/issues serve` — that gives them a
+clickable `http://localhost:<port>/` URL that works everywhere. If
+`.claude-issues/` doesn't exist yet, suggest `/issues init`.

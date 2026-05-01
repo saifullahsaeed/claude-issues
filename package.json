@@ -1,6 +1,6 @@
 {
   "name": "claude-issues",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "private": true,
   "description": "Persistent markdown issue ledger Claude Code plugin (CLI bundled into the plugin; not published to npm).",
   "type": "module",

@@ -124,15 +124,29 @@ reproduced the bug and confirmed it's gone, or got user confirmation).
 
 Every CLI command prints a `View: file://…` URL. **Always include this
 URL at the end of any reply that involved adding, updating, or closing
-issues** so the user can click and see the rendered ledger in a browser.
+issues** so the user can click through to the rendered ledger.
 
-Example end-of-reply:
+**Format the URL as a markdown link, never wrapped in backticks** —
+backticks render as inline code and are not clickable. Some chat UIs
+also strip plain `file://` URLs.
+
+Good (chat UI renders this as a real link):
 > Done. ISSUE-008 is now fixed.
 >
+> 🔗 [View ISSUE-008 in browser](file:///abs/path/.claude-issues/_html/ISSUE-008.html)
+
+Bad (renders as inline code, not clickable):
 > 🔗 View: `file:///abs/path/.claude-issues/_html/ISSUE-008.html`
 
-If the user just wants to browse, run `node "$CI" view` (no id) and post
-the printed URL.
+If a `file://` link won't open in the user's environment (some chat UIs
+block them for security), tell them to either:
+
+1. Run `/issues view` — the CLI will shell `open` (or `xdg-open`) and
+   open the page in the OS default browser directly.
+2. Run `/issues serve` — the CLI starts a tiny local HTTP server and
+   prints a clickable `http://localhost:<port>/` URL that works in every
+   environment. The server stays running until they Ctrl+C it; pages
+   reflect the latest CLI writes on every refresh.
 
 ## Adding new issues mid-task
 

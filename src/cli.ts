@@ -10,13 +10,14 @@ import { note } from "./commands/note.js";
 import { link } from "./commands/link.js";
 import { wontfix } from "./commands/wontfix.js";
 import { view } from "./commands/view.js";
+import { serve } from "./commands/serve.js";
 
 const program = new Command();
 
 program
   .name("claude-issues")
   .description("Persistent markdown issue ledger for Claude Code projects.")
-  .version("0.3.0");
+  .version("0.3.1");
 
 program
   .command("init")
@@ -85,6 +86,12 @@ program
   .description("Open the browser viewer for the project ledger or a single issue")
   .option("--no-open", "Print the URL but don't auto-open the browser")
   .action(wrap((id, opts) => view(id, opts)));
+
+program
+  .command("serve")
+  .description("Start a tiny local HTTP server so the ledger has a clickable http://localhost:<port> URL")
+  .option("-p, --port <port>", "Port (default 47829)")
+  .action(wrap((opts) => serve(opts)));
 
 program.parseAsync(process.argv).catch((err) => {
   console.error(chalk.red("✗"), err instanceof Error ? err.message : String(err));

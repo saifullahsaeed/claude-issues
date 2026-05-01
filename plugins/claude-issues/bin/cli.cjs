@@ -972,8 +972,8 @@ var require_command = __commonJS({
     "use strict";
     var EventEmitter = require("events").EventEmitter;
     var childProcess = require("child_process");
-    var path8 = require("path");
-    var fs8 = require("fs");
+    var path9 = require("path");
+    var fs9 = require("fs");
     var process3 = require("process");
     var { Argument: Argument2, humanReadableArgName } = require_argument();
     var { CommanderError: CommanderError2 } = require_error();
@@ -1905,11 +1905,11 @@ Expecting one of '${allowedValues.join("', '")}'`);
         let launchWithNode = false;
         const sourceExt = [".js", ".ts", ".tsx", ".mjs", ".cjs"];
         function findFile(baseDir, baseName) {
-          const localBin = path8.resolve(baseDir, baseName);
-          if (fs8.existsSync(localBin)) return localBin;
-          if (sourceExt.includes(path8.extname(baseName))) return void 0;
+          const localBin = path9.resolve(baseDir, baseName);
+          if (fs9.existsSync(localBin)) return localBin;
+          if (sourceExt.includes(path9.extname(baseName))) return void 0;
           const foundExt = sourceExt.find(
-            (ext) => fs8.existsSync(`${localBin}${ext}`)
+            (ext) => fs9.existsSync(`${localBin}${ext}`)
           );
           if (foundExt) return `${localBin}${foundExt}`;
           return void 0;
@@ -1921,21 +1921,21 @@ Expecting one of '${allowedValues.join("', '")}'`);
         if (this._scriptPath) {
           let resolvedScriptPath;
           try {
-            resolvedScriptPath = fs8.realpathSync(this._scriptPath);
+            resolvedScriptPath = fs9.realpathSync(this._scriptPath);
           } catch (err) {
             resolvedScriptPath = this._scriptPath;
           }
-          executableDir = path8.resolve(
-            path8.dirname(resolvedScriptPath),
+          executableDir = path9.resolve(
+            path9.dirname(resolvedScriptPath),
             executableDir
           );
         }
         if (executableDir) {
           let localFile = findFile(executableDir, executableFile);
           if (!localFile && !subcommand._executableFile && this._scriptPath) {
-            const legacyName = path8.basename(
+            const legacyName = path9.basename(
               this._scriptPath,
-              path8.extname(this._scriptPath)
+              path9.extname(this._scriptPath)
             );
             if (legacyName !== this._name) {
               localFile = findFile(
@@ -1946,7 +1946,7 @@ Expecting one of '${allowedValues.join("', '")}'`);
           }
           executableFile = localFile || executableFile;
         }
-        launchWithNode = sourceExt.includes(path8.extname(executableFile));
+        launchWithNode = sourceExt.includes(path9.extname(executableFile));
         let proc;
         if (process3.platform !== "win32") {
           if (launchWithNode) {
@@ -2786,7 +2786,7 @@ Expecting one of '${allowedValues.join("', '")}'`);
        * @return {Command}
        */
       nameFromFilename(filename) {
-        this._name = path8.basename(filename, path8.extname(filename));
+        this._name = path9.basename(filename, path9.extname(filename));
         return this;
       }
       /**
@@ -2800,9 +2800,9 @@ Expecting one of '${allowedValues.join("', '")}'`);
        * @param {string} [path]
        * @return {(string|null|Command)}
        */
-      executableDir(path9) {
-        if (path9 === void 0) return this._executableDir;
-        this._executableDir = path9;
+      executableDir(path10) {
+        if (path10 === void 0) return this._executableDir;
+        this._executableDir = path10;
         return this;
       }
       /**
@@ -6969,7 +6969,7 @@ var require_parse = __commonJS({
 var require_gray_matter = __commonJS({
   "node_modules/gray-matter/index.js"(exports2, module2) {
     "use strict";
-    var fs8 = require("fs");
+    var fs9 = require("fs");
     var sections = require_section_matter();
     var defaults = require_defaults();
     var stringify = require_stringify();
@@ -7053,7 +7053,7 @@ var require_gray_matter = __commonJS({
       return stringify(file, data, options3);
     };
     matter2.read = function(filepath, options3) {
-      const str2 = fs8.readFileSync(filepath, "utf8");
+      const str2 = fs9.readFileSync(filepath, "utf8");
       const file = matter2(str2, options3);
       file.path = filepath;
       return file;
@@ -16849,9 +16849,78 @@ function view(id, opts) {
   }
 }
 
+// src/commands/serve.ts
+var import_node_http = __toESM(require("http"), 1);
+var import_node_fs8 = __toESM(require("fs"), 1);
+var import_node_path8 = __toESM(require("path"), 1);
+init_source();
+init_paths();
+init_html();
+var MIME = {
+  ".html": "text/html; charset=utf-8",
+  ".css": "text/css; charset=utf-8",
+  ".js": "application/javascript",
+  ".json": "application/json",
+  ".svg": "image/svg+xml",
+  ".png": "image/png"
+};
+async function serve(opts) {
+  const paths = resolvePaths();
+  ensureInitialized(paths);
+  regenerateHtml(paths);
+  const port = opts.port ? Number.parseInt(opts.port, 10) : 47829;
+  if (Number.isNaN(port) || port < 1 || port > 65535) {
+    throw new Error(`Invalid --port: ${opts.port}`);
+  }
+  const root = paths.html;
+  const server = import_node_http.default.createServer((req, res) => {
+    const reqUrl = req.url ?? "/";
+    let pathname = decodeURIComponent(reqUrl.split("?")[0] ?? "/");
+    if (pathname === "/" || pathname === "") pathname = "/index.html";
+    regenerateHtml(paths);
+    const target = import_node_path8.default.normalize(import_node_path8.default.join(root, pathname));
+    if (!target.startsWith(root)) {
+      res.writeHead(403);
+      res.end("forbidden");
+      return;
+    }
+    import_node_fs8.default.readFile(target, (err, data) => {
+      if (err) {
+        res.writeHead(404, { "content-type": "text/plain" });
+        res.end("not found");
+        return;
+      }
+      res.writeHead(200, {
+        "content-type": MIME[import_node_path8.default.extname(target)] ?? "application/octet-stream",
+        "cache-control": "no-store"
+      });
+      res.end(data);
+    });
+  });
+  server.on("error", (err) => {
+    if (err.code === "EADDRINUSE") {
+      console.error(
+        source_default.red("\u2717"),
+        `Port ${port} is already in use. Try \`claude-issues serve --port <other>\`.`
+      );
+      process.exit(1);
+    }
+    throw err;
+  });
+  await new Promise((resolve) => server.listen(port, "127.0.0.1", resolve));
+  const url = `http://localhost:${port}/`;
+  console.log(source_default.green("\u2713"), `Serving ledger at ${source_default.cyan(url)}`);
+  console.log(source_default.dim("  Press Ctrl+C to stop. Pages auto-refresh content on every request."));
+  console.log(`View: ${url}`);
+  process.on("SIGINT", () => {
+    console.log("\nStopping\u2026");
+    server.close(() => process.exit(0));
+  });
+}
+
 // src/cli.ts
 var program2 = new Command();
-program2.name("claude-issues").description("Persistent markdown issue ledger for Claude Code projects.").version("0.3.0");
+program2.name("claude-issues").description("Persistent markdown issue ledger for Claude Code projects.").version("0.3.1");
 program2.command("init").description("Create .claude-issues/ in the current directory").action(wrap2(() => init()));
 program2.command("add").description("Add a new open issue").option("-t, --title <title>", "Issue title").option("-s, --severity <severity>", "low | medium | high | critical").option("-f, --files <files>", "Comma-separated file paths").option("-d, --description <text>", "Short description").option("--supersedes <id>", "Mark this new issue as a replacement for an older issue").option("--no-scan", "Skip the duplicate-detection scan").action(wrap2((opts) => add(opts)));
 program2.command("list").alias("ls").description("List issues (default: open)").option("--open", "Open issues only (default)").option("--fixed", "Fixed issues only").option("--archive", "Archived issues only (wontfix \xB7 superseded \xB7 duplicate)").option("--all", "All issues").action(wrap2((opts) => list2(opts)));
@@ -16862,6 +16931,7 @@ program2.command("note <id> <text>").description("Append a timestamped progress 
 program2.command("wontfix <id>").description("Close an issue without fixing").option("-n, --note <text>", "Reason note").action(wrap2((id, opts) => wontfix(id, opts)));
 program2.command("link <id>").description("Link an issue to another (supersedes / duplicate-of / related)").option("--supersedes <id>", "<id> replaces an older issue (older becomes superseded)").option("--duplicate-of <id>", "Mark <id> as duplicate of another (closed)").option("--related <id>", "Add a bidirectional related link to another issue").option("--unrelated <id>", "Remove a related link").action(wrap2((id, opts) => link2(id, opts)));
 program2.command("view [id]").description("Open the browser viewer for the project ledger or a single issue").option("--no-open", "Print the URL but don't auto-open the browser").action(wrap2((id, opts) => view(id, opts)));
+program2.command("serve").description("Start a tiny local HTTP server so the ledger has a clickable http://localhost:<port> URL").option("-p, --port <port>", "Port (default 47829)").action(wrap2((opts) => serve(opts)));
 program2.parseAsync(process.argv).catch((err) => {
   console.error(source_default.red("\u2717"), err instanceof Error ? err.message : String(err));
   process.exit(1);
