@@ -1,57 +1,49 @@
 # claude-issues
 
-A persistent, markdown-based issue ledger for Claude Code projects — with
-a built-in browser viewer, status audit trail, and cross-issue links.
+A persistent, markdown-based issue ledger Claude Code plugin — with a
+built-in browser viewer, status audit trail, and cross-issue links.
 
 You spot issues during the day. Claude (in any future session) reads the
-ledger, checks for prior work touching the same files, picks issues, fixes
-them, and closes them — all using the same CLI. No database. Just markdown
-files in `.claude-issues/` inside your project, fully git-trackable.
+ledger, checks for prior work touching the same files, picks issues,
+fixes them, and closes them. No database. Just markdown files in
+`.claude-issues/` inside your project, fully git-trackable.
 
 ## Why
 
 Claude Code sessions get cleared, restarted, or compacted. There is no
 shared memory of "what's already fixed in this project" vs. "what's still
-open." This tool gives every project a durable, audit-friendly ledger that
-survives sessions, so Claude always knows the current state when you start
-a new conversation — and so you have a real history of how each problem
-was decided.
+open." This plugin gives every project a durable, audit-friendly ledger
+that survives sessions, so Claude always knows the current state when you
+start a new conversation — and so you have a real history of how each
+problem was decided.
 
 ## Install
 
-Pick either, or both.
-
-### As an npm CLI
-
-```bash
-npm install -g claude-issues
-# or use directly without install:
-npx claude-issues init
-```
-
-### As a Claude Code plugin
+In Claude Code:
 
 ```
-/plugin marketplace add <your-github-user>/claude-issues
-/plugin install claude-issues
+/plugin marketplace add saifullahsaeed/claude-issues
+/plugin install claude-issues@claude-issues
 ```
 
-The plugin installs a paired `claude-issues` skill (auto-activates when
-`.claude-issues/` exists) and a `/issues` slash command that wraps the CLI.
+That's it. The CLI ships bundled inside the plugin — there's nothing to
+install from npm.
 
 ## Quick start
 
-```bash
-cd ~/your-project
-claude-issues init
-claude-issues add -t "Login button broken on Safari" -s high -f "src/auth/Login.tsx"
-claude-issues list
-claude-issues view          # open the browser viewer
+In any project:
+
+```
+/issues init
+/issues add
+/issues list
+/issues view
 ```
 
-Now open Claude Code in that project. The skill picks up `.claude-issues/`
-automatically, reads the index, checks for past similar fixes, and is
-ready to work on open issues.
+Once `.claude-issues/` exists, the bundled `claude-issues` skill
+auto-activates: Claude reads the ledger first, checks for past similar
+fixes before starting new work, and posts a clickable browser URL at the
+end of any reply that touched issues.
 
 ## Statuses
 
@@ -64,28 +56,27 @@ ready to work on open issues.
 | `duplicate` | Same as another issue (`duplicate_of` points to it). |
 
 `fixed`, `wontfix`, `superseded`, and `duplicate` are all _closed_ states
-and live in `archive/` (except `fixed`, which keeps its own `fixed/`
-folder for visibility). Closed issues stay part of the audit trail.
+and contribute to the audit trail. Closed issues live in `archive/`
+(except `fixed`, which keeps its own `fixed/` folder for visibility).
 
-## Commands
+## Slash command
 
-| Command | What it does |
+The `/issues` command in Claude Code wraps everything:
+
+| Subcommand | What it does |
 |---|---|
-| `claude-issues init` | Create `.claude-issues/` in the current directory |
-| `claude-issues add` | Add an issue (interactive or `-t -s -f -d`); warns if similar past issues exist |
-| `claude-issues list [--open\|--fixed\|--archive\|--all]` | List issues (default: open) |
-| `claude-issues show <id>` | Print an issue's full markdown |
-| `claude-issues fix <id> [--note "..."]` | Mark fixed; move to `fixed/` |
-| `claude-issues wontfix <id> [--note "..."]` | Close without fixing |
-| `claude-issues reopen <id>` | Move any closed issue back to `open/` |
-| `claude-issues note <id> "<text>"` | Append a timestamped progress note |
-| `claude-issues link <id> --supersedes <old>` | New issue replaces an older one (old → `superseded`) |
-| `claude-issues link <id> --duplicate-of <other>` | Mark `<id>` as a duplicate of another |
-| `claude-issues link <id> --related <other>` | Add a bidirectional related link |
-| `claude-issues view [id] [--no-open]` | Open the browser viewer |
-
-`add --supersedes <id>` is a shortcut: create a new issue and immediately
-mark the older one as superseded.
+| `/issues init` | Create `.claude-issues/` in the current project |
+| `/issues add` | Add an issue (interactive); warns if similar past issues exist |
+| `/issues list` / `list fixed` / `list archive` / `list all` | List issues |
+| `/issues show <id>` | Print an issue's full markdown |
+| `/issues fix <id> "<note>"` | Mark fixed; move to `fixed/` |
+| `/issues wontfix <id> "<note>"` | Close without fixing |
+| `/issues reopen <id>` | Move any closed issue back to `open/` |
+| `/issues note <id> "<text>"` | Append a timestamped progress note |
+| `/issues link <id> supersedes <old>` | New issue replaces an older one |
+| `/issues link <id> duplicate-of <other>` | Mark `<id>` as a duplicate |
+| `/issues link <id> related <other>` | Add a bidirectional related link |
+| `/issues view [id]` | Open the browser viewer |
 
 IDs accept `1`, `001`, or `ISSUE-001` interchangeably.
 
@@ -99,12 +90,10 @@ Every CLI write also regenerates a static HTML site at
 View: file:///abs/path/.claude-issues/_html/ISSUE-008.html
 ```
 
-Click it (or run `claude-issues view`) to browse a styled, navigable
-ledger with severity / status badges and links between superseded,
-duplicate, and related issues.
-
-The skill instructs Claude to include this URL at the end of any reply
-that touches issues, so a click takes you straight to the rendered page.
+Click it (or run `/issues view`) to browse a styled, navigable ledger
+with severity / status badges and links between superseded, duplicate,
+and related issues. The skill instructs Claude to always post this URL
+at the end of any reply that touches issues.
 
 ## On-disk layout
 
@@ -131,21 +120,33 @@ description, repro steps, and an auto-appended "Fix notes" section.
 
 ## How Claude uses it
 
-The bundled skill instructs Claude to:
+The bundled `claude-issues` skill instructs Claude to:
 
 1. Read `.claude-issues/INDEX.md` first to learn project state.
 2. **Before fixing**, scan the ledger (open + fixed + archive) for prior
-   work touching the same files or keywords. If it finds a match, ask the
-   user whether the new request is a regression (→ reopen), an intentional
-   different approach (→ supersede), or a duplicate (→ link).
+   work touching the same files or keywords. If it finds a match, ask
+   the user whether the new request is a regression (→ reopen), an
+   intentional different approach (→ supersede), or a duplicate (→ link).
 3. Read the full issue file, including any prior fix notes.
-4. Record progress with `claude-issues note <id> "..."` as it works.
+4. Record progress with `note <id> "..."` as it works.
 5. Verify the fix, then close with the right command:
    - `fix` for verified fixes
    - `wontfix` for declined / out-of-scope
    - `link --duplicate-of` if it turns out to be a duplicate
    - `add --supersedes <old>` if it's a different fix for the same problem
 6. Post the `View: file://…` URL at the end of every reply.
+
+## Contributing / building locally
+
+```
+git clone https://github.com/saifullahsaeed/claude-issues
+cd claude-issues
+npm install
+npm run build      # rebuilds plugins/claude-issues/bin/cli.cjs
+```
+
+The bundled CLI at `plugins/claude-issues/bin/cli.cjs` is committed so
+plugin users don't need to build anything.
 
 ## License
 

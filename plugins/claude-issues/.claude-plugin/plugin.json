@@ -1,6 +1,6 @@
 {
   "name": "claude-issues",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Persistent markdown issue ledger with browser viewer, status audit, and cross-issue links for Claude Code projects.",
   "author": {
     "name": "Saifullah Saeed"

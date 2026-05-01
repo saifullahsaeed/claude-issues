@@ -16,7 +16,7 @@ const program = new Command();
 program
   .name("claude-issues")
   .description("Persistent markdown issue ledger for Claude Code projects.")
-  .version("0.2.0");
+  .version("0.3.0");
 
 program
   .command("init")
