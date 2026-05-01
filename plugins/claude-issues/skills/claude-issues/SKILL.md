@@ -1,35 +1,42 @@
 ---
 name: claude-issues
-description: Use whenever you're asked to fix, investigate, or work on issues in a project that has a `.claude-issues/` folder. Reads the persistent issue ledger so you know what's open, fixed, or archived across sessions; checks for prior fixes before starting; updates statuses (`open` / `fixed` / `wontfix` / `superseded` / `duplicate`); links related issues; and posts a clickable browser viewer URL at the end of every reply about issues.
+description: Use whenever you're asked to fix, investigate, or work on issues in any project. Reads the persistent issue ledger so you know what's open, fixed, or archived across sessions; checks for prior fixes before starting; updates statuses (`open` / `fixed` / `wontfix` / `superseded` / `duplicate`); links related issues; and posts a clickable browser viewer URL at the end of every reply about issues. The CLI auto-creates the ledger on first use — no `init` step required.
 ---
 
 # claude-issues
 
-This project uses a persistent issue ledger stored in `.claude-issues/` at
-the project root. It survives Claude Code sessions: what was fixed last
-week is still marked fixed today, and you can see _why_ things were fixed.
+This plugin gives every project a persistent issue ledger stored in
+`.claude-issues/` at the project root. It survives Claude Code sessions:
+what was fixed last week is still marked fixed today, and you can see
+_why_ each thing was decided.
 
-## The CLI
+## The CLI (always invoke via the bundled path)
 
 The CLI is bundled inside this plugin at
-`${CLAUDE_PLUGIN_ROOT}/bin/cli.cjs`. **Always invoke it via this path** so
-you never collide with an unrelated package on npm. Set a shell variable
-once at the start of any session that uses it:
+`${CLAUDE_PLUGIN_ROOT}/bin/cli.cjs`. Invoke it via `node` to avoid
+colliding with an unrelated package on npm. Set a shell variable once at
+the start of any session that uses it:
 
 ```
 CI="${CLAUDE_PLUGIN_ROOT}/bin/cli.cjs"
 node "$CI" list --all
 ```
 
-Every example below assumes `CI` is set this way. If you forget, just
-write the full path: `node "${CLAUDE_PLUGIN_ROOT}/bin/cli.cjs" …`.
+Every example below assumes `CI` is set this way. If `CLAUDE_PLUGIN_ROOT`
+is not set in your environment, fall back to the absolute install path
+the user shows you.
+
+**The CLI auto-creates `.claude-issues/` on first use.** You do not need
+to run `init` separately — `add`, `list`, `view`, `serve`, etc. all
+bootstrap the folder if it's missing. The user can run `init` if they
+want the explicit setup message and CLAUDE.md pointer.
 
 ## When to invoke this skill
 
 - Any time the user asks you to "work on issues," "fix this," "look into
   X," "pick up where we left off," or anything that sounds like project
-  work — if `.claude-issues/` exists in the project, this skill applies.
-- At the start of any session in a project with `.claude-issues/INDEX.md`.
+  work.
+- At the start of any session in a project that has `.claude-issues/INDEX.md`.
 
 ## Statuses you'll work with
 
@@ -52,7 +59,9 @@ node "$CI" list --all
 ```
 
 …or read `.claude-issues/INDEX.md` directly. **Do not assume project state
-from memory.**
+from memory.** If `.claude-issues/INDEX.md` doesn't exist yet, the
+project simply has no logged issues — the next CLI call will create the
+ledger for you.
 
 ## Step 2 — Check for prior fixes (CRITICAL — duplicate detection)
 
@@ -67,28 +76,25 @@ Heuristics, in order:
    ```
    grep -l "src/auth/Login.tsx" .claude-issues/{open,fixed,archive}/*.md 2>/dev/null
    ```
-2. **By keyword.** Search titles for distinctive words from the request
-   ("safari," "login," "dashboard query," etc.).
+2. **By keyword.** Search titles for distinctive words from the request.
 3. **Show the user what you found.** If matches exist (especially `fixed`
    ones), do **not** silently start working. Surface them:
 
    > "I see you fixed `ISSUE-007 — Login broken on Safari` last month
    > with note 'Bound onClick handler.' Is the new request a regression
    > of that fix, an intentional second pass with a different approach,
-   > or something different? Options:
-   > - **Reopen** ISSUE-007 if it's the same bug back:
-   >   `node "$CI" reopen 7`
-   > - **New issue that supersedes** the old one if you want a different
-   >   fix recorded:
+   > or something different?
+   > - **Reopen** if it's the same bug back: `node "$CI" reopen 7`
+   > - **Supersede** if you want a different fix recorded:
    >   `node "$CI" add ... --supersedes 7`
-   > - **Mark as duplicate** if it turns out to already be tracked:
+   > - **Duplicate** if it turns out to already be tracked:
    >   `node "$CI" link <new-id> --duplicate-of 7`"
 4. Only proceed once the user confirms intent.
 
 ## Step 3 — While working
 
-- Read the issue's full markdown file (not just the index summary) so you
-  see prior fix notes from earlier sessions.
+- Read the issue's full markdown file (not just the index summary) so
+  you see prior fix notes from earlier sessions.
 - Record meaningful progress as you go:
   ```
   node "$CI" note <id> "Investigated X; root cause is Y."
@@ -122,8 +128,8 @@ reproduced the bug and confirmed it's gone, or got user confirmation).
 
 ## Step 5 — Post the browser viewer link at the end
 
-Every CLI command prints a `View: file://…` URL. **Always include this
-URL at the end of any reply that involved adding, updating, or closing
+Every CLI command prints a `View: <url>` line. **Always include this URL
+at the end of any reply that involved adding, updating, or closing
 issues** so the user can click through to the rendered ledger.
 
 **Format the URL as a markdown link, never wrapped in backticks** —
@@ -138,20 +144,23 @@ Good (chat UI renders this as a real link):
 Bad (renders as inline code, not clickable):
 > 🔗 View: `file:///abs/path/.claude-issues/_html/ISSUE-008.html`
 
-If a `file://` link won't open in the user's environment (some chat UIs
-block them for security), tell them to either:
+If `file://` links don't render as clickable in the user's environment
+(some chat UIs strip them for security), tell them either:
 
-1. Run `/issues view` — the CLI will shell `open` (or `xdg-open`) and
-   open the page in the OS default browser directly.
-2. Run `/issues serve` — the CLI starts a tiny local HTTP server and
+1. Run the CLI's `view` command — it shells `open` (or `xdg-open`) and
+   opens the page in the OS default browser:
+   ```
+   node "$CI" view
+   ```
+2. Or run `node "$CI" serve` — starts a tiny local HTTP server and
    prints a clickable `http://localhost:<port>/` URL that works in every
-   environment. The server stays running until they Ctrl+C it; pages
+   environment. The server stays running until they Ctrl+C; pages
    reflect the latest CLI writes on every refresh.
 
 ## Adding new issues mid-task
 
-If you discover a new bug while working on something else, log it instead
-of derailing:
+If you discover a new bug while working on something else, log it
+instead of derailing:
 
 ```
 node "$CI" add -t "..." -s medium -f "src/foo.ts" -d "..."
@@ -159,6 +168,13 @@ node "$CI" add -t "..." -s medium -f "src/foo.ts" -d "..."
 
 The CLI will warn you if it finds candidates of past similar work —
 surface that warning to the user before continuing.
+
+## Slash command (for the user)
+
+This plugin also ships a `/issues` slash command (full namespaced form:
+`/claude-issues:issues`). The user invokes it directly. As Claude, you
+should always shell the bash CLI yourself rather than re-invoking the
+slash command.
 
 ## ID format
 

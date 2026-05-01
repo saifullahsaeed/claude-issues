@@ -1,5 +1,4 @@
 import path from "node:path";
-import fs from "node:fs";
 import type { Status } from "./types.js";
 
 export const ROOT_DIR_NAME = ".claude-issues";
@@ -43,10 +42,3 @@ export function dirForStatus(paths: Paths, status: Status): string {
   }
 }
 
-export function ensureInitialized(paths: Paths): void {
-  if (!fs.existsSync(paths.root)) {
-    throw new Error(
-      `No .claude-issues/ folder found in ${paths.cwd}. Run \`claude-issues init\` first.`,
-    );
-  }
-}

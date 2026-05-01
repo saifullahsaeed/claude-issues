@@ -2,7 +2,8 @@ import http from "node:http";
 import fs from "node:fs";
 import path from "node:path";
 import chalk from "chalk";
-import { resolvePaths, ensureInitialized } from "../paths.js";
+import { resolvePaths } from "../paths.js";
+import { bootstrap } from "./init.js";
 import { regenerateHtml } from "../html.js";
 
 interface ServeOptions {
@@ -21,7 +22,7 @@ const MIME: Record<string, string> = {
 
 export async function serve(opts: ServeOptions): Promise<void> {
   const paths = resolvePaths();
-  ensureInitialized(paths);
+  bootstrap(paths);
   regenerateHtml(paths);
 
   const port = opts.port ? Number.parseInt(opts.port, 10) : 47829;

@@ -973,7 +973,7 @@ var require_command = __commonJS({
     var EventEmitter = require("events").EventEmitter;
     var childProcess = require("child_process");
     var path9 = require("path");
-    var fs9 = require("fs");
+    var fs8 = require("fs");
     var process3 = require("process");
     var { Argument: Argument2, humanReadableArgName } = require_argument();
     var { CommanderError: CommanderError2 } = require_error();
@@ -1906,10 +1906,10 @@ Expecting one of '${allowedValues.join("', '")}'`);
         const sourceExt = [".js", ".ts", ".tsx", ".mjs", ".cjs"];
         function findFile(baseDir, baseName) {
           const localBin = path9.resolve(baseDir, baseName);
-          if (fs9.existsSync(localBin)) return localBin;
+          if (fs8.existsSync(localBin)) return localBin;
           if (sourceExt.includes(path9.extname(baseName))) return void 0;
           const foundExt = sourceExt.find(
-            (ext) => fs9.existsSync(`${localBin}${ext}`)
+            (ext) => fs8.existsSync(`${localBin}${ext}`)
           );
           if (foundExt) return `${localBin}${foundExt}`;
           return void 0;
@@ -1921,7 +1921,7 @@ Expecting one of '${allowedValues.join("', '")}'`);
         if (this._scriptPath) {
           let resolvedScriptPath;
           try {
-            resolvedScriptPath = fs9.realpathSync(this._scriptPath);
+            resolvedScriptPath = fs8.realpathSync(this._scriptPath);
           } catch (err) {
             resolvedScriptPath = this._scriptPath;
           }
@@ -3580,19 +3580,11 @@ function dirForStatus(paths, status) {
       return paths.archive;
   }
 }
-function ensureInitialized(paths) {
-  if (!import_node_fs.default.existsSync(paths.root)) {
-    throw new Error(
-      `No .claude-issues/ folder found in ${paths.cwd}. Run \`claude-issues init\` first.`
-    );
-  }
-}
-var import_node_path, import_node_fs, ROOT_DIR_NAME;
+var import_node_path, ROOT_DIR_NAME;
 var init_paths = __esm({
   "src/paths.ts"() {
     "use strict";
     import_node_path = __toESM(require("path"), 1);
-    import_node_fs = __toESM(require("fs"), 1);
     ROOT_DIR_NAME = ".claude-issues";
   }
 });
@@ -6969,7 +6961,7 @@ var require_parse = __commonJS({
 var require_gray_matter = __commonJS({
   "node_modules/gray-matter/index.js"(exports2, module2) {
     "use strict";
-    var fs9 = require("fs");
+    var fs8 = require("fs");
     var sections = require_section_matter();
     var defaults = require_defaults();
     var stringify = require_stringify();
@@ -7053,7 +7045,7 @@ var require_gray_matter = __commonJS({
       return stringify(file, data, options3);
     };
     matter2.read = function(filepath, options3) {
-      const str2 = fs9.readFileSync(filepath, "utf8");
+      const str2 = fs8.readFileSync(filepath, "utf8");
       const file = matter2(str2, options3);
       file.path = filepath;
       return file;
@@ -7083,7 +7075,7 @@ var require_gray_matter = __commonJS({
 
 // src/storage.ts
 function readIssue(filePath) {
-  const raw = import_node_fs2.default.readFileSync(filePath, "utf8");
+  const raw = import_node_fs.default.readFileSync(filePath, "utf8");
   const parsed = (0, import_gray_matter.default)(raw);
   return {
     frontmatter: parsed.data,
@@ -7093,11 +7085,11 @@ function readIssue(filePath) {
 }
 function writeIssue(issue) {
   const out = import_gray_matter.default.stringify(issue.body, issue.frontmatter);
-  import_node_fs2.default.writeFileSync(issue.filePath, out, "utf8");
+  import_node_fs.default.writeFileSync(issue.filePath, out, "utf8");
 }
 function readDir(dir) {
-  if (!import_node_fs2.default.existsSync(dir)) return [];
-  return import_node_fs2.default.readdirSync(dir).filter((f) => f.endsWith(".md")).map((f) => readIssue(import_node_path2.default.join(dir, f)));
+  if (!import_node_fs.default.existsSync(dir)) return [];
+  return import_node_fs.default.readdirSync(dir).filter((f) => f.endsWith(".md")).map((f) => readIssue(import_node_path2.default.join(dir, f)));
 }
 function listOpen(paths) {
   return readDir(paths.open);
@@ -7112,19 +7104,19 @@ function listAll(paths) {
   return [...listOpen(paths), ...listFixed(paths), ...listArchive(paths)];
 }
 function moveIssue(issue, targetDir) {
-  import_node_fs2.default.mkdirSync(targetDir, { recursive: true });
+  import_node_fs.default.mkdirSync(targetDir, { recursive: true });
   const newPath = import_node_path2.default.join(targetDir, import_node_path2.default.basename(issue.filePath));
   if (import_node_path2.default.resolve(newPath) === import_node_path2.default.resolve(issue.filePath)) {
     return issue;
   }
-  import_node_fs2.default.renameSync(issue.filePath, newPath);
+  import_node_fs.default.renameSync(issue.filePath, newPath);
   return { ...issue, filePath: newPath };
 }
-var import_node_fs2, import_node_path2, import_gray_matter;
+var import_node_fs, import_node_path2, import_gray_matter;
 var init_storage = __esm({
   "src/storage.ts"() {
     "use strict";
-    import_node_fs2 = __toESM(require("fs"), 1);
+    import_node_fs = __toESM(require("fs"), 1);
     import_node_path2 = __toESM(require("path"), 1);
     import_gray_matter = __toESM(require_gray_matter(), 1);
   }
@@ -7164,7 +7156,7 @@ function regenerateIndex(paths) {
   out += renderTableFixed(fixed);
   out += "\n## Archive (wontfix \xB7 superseded \xB7 duplicate)\n\n";
   out += renderTableArchive(archive);
-  import_node_fs3.default.writeFileSync(paths.index, out, "utf8");
+  import_node_fs2.default.writeFileSync(paths.index, out, "utf8");
 }
 function renderTableOpen(issues) {
   if (issues.length === 0) return "_None._\n";
@@ -7214,11 +7206,11 @@ function linkSummary(i) {
 function esc(s) {
   return s.replace(/\|/g, "\\|");
 }
-var import_node_fs3, HEADER;
+var import_node_fs2, HEADER;
 var init_index_md = __esm({
   "src/index-md.ts"() {
     "use strict";
-    import_node_fs3 = __toESM(require("fs"), 1);
+    import_node_fs2 = __toESM(require("fs"), 1);
     init_storage();
     init_types();
     HEADER = `# Claude Issues \u2014 Project Ledger
@@ -9312,21 +9304,21 @@ ${text}</tr>
 
 // src/html.ts
 function regenerateHtml(paths) {
-  import_node_fs4.default.mkdirSync(paths.html, { recursive: true });
+  import_node_fs3.default.mkdirSync(paths.html, { recursive: true });
   const all = [
     ...listOpen(paths),
     ...listFixed(paths),
     ...listArchive(paths)
   ];
   for (const issue of all) {
-    import_node_fs4.default.writeFileSync(htmlPathFor(paths, issue), renderIssue(issue, all), "utf8");
+    import_node_fs3.default.writeFileSync(htmlPathFor(paths, issue), renderIssue(issue, all), "utf8");
   }
-  import_node_fs4.default.writeFileSync(paths.htmlIndex, renderIndex(paths, all), "utf8");
+  import_node_fs3.default.writeFileSync(paths.htmlIndex, renderIndex(paths, all), "utf8");
   const liveIds = new Set(all.map((i) => i.frontmatter.id));
-  for (const f of import_node_fs4.default.readdirSync(paths.html)) {
+  for (const f of import_node_fs3.default.readdirSync(paths.html)) {
     if (!f.endsWith(".html") || f === "index.html") continue;
     const id = f.replace(/\.html$/, "");
-    if (!liveIds.has(id)) import_node_fs4.default.unlinkSync(import_node_path3.default.join(paths.html, f));
+    if (!liveIds.has(id)) import_node_fs3.default.unlinkSync(import_node_path3.default.join(paths.html, f));
   }
 }
 function htmlPathFor(paths, issue) {
@@ -9447,11 +9439,11 @@ ${back}
 function escapeHtml(s) {
   return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 }
-var import_node_fs4, import_node_path3, STATUS_COLOR, SEV_COLOR, BASE_CSS;
+var import_node_fs3, import_node_path3, STATUS_COLOR, SEV_COLOR, BASE_CSS;
 var init_html = __esm({
   "src/html.ts"() {
     "use strict";
-    import_node_fs4 = __toESM(require("fs"), 1);
+    import_node_fs3 = __toESM(require("fs"), 1);
     import_node_path3 = __toESM(require("path"), 1);
     init_marked_esm();
     init_storage();
@@ -9507,6 +9499,61 @@ var init_output = __esm({
     "use strict";
     init_source();
     init_html();
+  }
+});
+
+// src/commands/init.ts
+function bootstrap(paths) {
+  if (import_node_fs4.default.existsSync(paths.root)) return { created: false };
+  import_node_fs4.default.mkdirSync(paths.open, { recursive: true });
+  import_node_fs4.default.mkdirSync(paths.fixed, { recursive: true });
+  import_node_fs4.default.mkdirSync(paths.archive, { recursive: true });
+  import_node_fs4.default.mkdirSync(paths.html, { recursive: true });
+  regenerateIndex(paths);
+  regenerateHtml(paths);
+  const giAttr = import_node_path4.default.join(paths.root, ".gitignore");
+  if (!import_node_fs4.default.existsSync(giAttr)) {
+    import_node_fs4.default.writeFileSync(giAttr, "_html/\n", "utf8");
+  }
+  return { created: true };
+}
+function init() {
+  const paths = resolvePaths();
+  const { created } = bootstrap(paths);
+  const claudeMd = import_node_path4.default.join(paths.cwd, "CLAUDE.md");
+  if (import_node_fs4.default.existsSync(claudeMd)) {
+    const current = import_node_fs4.default.readFileSync(claudeMd, "utf8");
+    if (!current.includes(".claude-issues/INDEX.md")) {
+      import_node_fs4.default.writeFileSync(claudeMd, current + CLAUDE_MD_POINTER, "utf8");
+      console.log(source_default.green("\u2713"), "Appended pointer to CLAUDE.md");
+    }
+  }
+  if (created) {
+    console.log(source_default.green("\u2713"), `Initialized ${source_default.cyan(".claude-issues/")} in ${paths.cwd}`);
+  } else {
+    console.log(source_default.dim("\u2022"), `${source_default.cyan(".claude-issues/")} already exists in ${paths.cwd}`);
+  }
+  console.log(`  ${source_default.dim("\u2192")} ${source_default.cyan(".claude-issues/INDEX.md")}`);
+  console.log(`  ${source_default.dim("\u2192")} ${source_default.cyan(".claude-issues/open/")}, ${source_default.cyan("fixed/")}, ${source_default.cyan("archive/")}`);
+  console.log(`  ${source_default.dim("\u2192")} ${source_default.cyan(".claude-issues/_html/index.html")} (browser view)`);
+  printViewerLink(paths);
+}
+var import_node_fs4, import_node_path4, CLAUDE_MD_POINTER;
+var init_init = __esm({
+  "src/commands/init.ts"() {
+    "use strict";
+    import_node_fs4 = __toESM(require("fs"), 1);
+    import_node_path4 = __toESM(require("path"), 1);
+    init_source();
+    init_paths();
+    init_index_md();
+    init_html();
+    init_output();
+    CLAUDE_MD_POINTER = `
+## Issue ledger
+
+This project uses \`claude-issues\` for cross-session issue tracking. Read \`.claude-issues/INDEX.md\` to see what's open, fixed, and archived before starting work. Browser view: \`.claude-issues/_html/index.html\` (or run \`/issues serve\` for a clickable http URL).
+`;
   }
 });
 
@@ -14383,9 +14430,9 @@ function fileNameFor(id, title) {
   return `${id}-${slugify(title)}.md`;
 }
 function listIssueIds(dir) {
-  if (!import_node_fs6.default.existsSync(dir)) return [];
+  if (!import_node_fs5.default.existsSync(dir)) return [];
   const ids = [];
-  for (const entry of import_node_fs6.default.readdirSync(dir)) {
+  for (const entry of import_node_fs5.default.readdirSync(dir)) {
     const m = entry.match(/^ISSUE-(\d+)/);
     if (m && m[1]) ids.push(Number.parseInt(m[1], 10));
   }
@@ -14403,8 +14450,8 @@ function nextId(paths) {
 function findIssueFile(paths, id) {
   const normalized = normalizeId(id);
   for (const dir of [paths.open, paths.fixed, paths.archive]) {
-    if (!import_node_fs6.default.existsSync(dir)) continue;
-    for (const entry of import_node_fs6.default.readdirSync(dir)) {
+    if (!import_node_fs5.default.existsSync(dir)) continue;
+    for (const entry of import_node_fs5.default.readdirSync(dir)) {
       if (entry.startsWith(`${normalized}-`)) {
         return import_node_path5.default.join(dir, entry);
       }
@@ -14412,11 +14459,11 @@ function findIssueFile(paths, id) {
   }
   return null;
 }
-var import_node_fs6, import_node_path5, ID_RE;
+var import_node_fs5, import_node_path5, ID_RE;
 var init_ids = __esm({
   "src/ids.ts"() {
     "use strict";
-    import_node_fs6 = __toESM(require("fs"), 1);
+    import_node_fs5 = __toESM(require("fs"), 1);
     import_node_path5 = __toESM(require("path"), 1);
     ID_RE = /^ISSUE-(\d{3,})$/;
   }
@@ -14429,7 +14476,7 @@ __export(link_exports, {
 });
 function link2(id, opts) {
   const paths = resolvePaths();
-  ensureInitialized(paths);
+  bootstrap(paths);
   const file = findIssueFile(paths, id);
   if (!file) {
     console.error(source_default.red("\u2717"), `No issue found matching ${source_default.cyan(id)}`);
@@ -14528,6 +14575,7 @@ var init_link = __esm({
     "use strict";
     init_source();
     init_paths();
+    init_init();
     init_ids();
     init_storage();
     init_index_md();
@@ -16375,52 +16423,14 @@ var {
 
 // src/cli.ts
 init_source();
-
-// src/commands/init.ts
-var import_node_fs5 = __toESM(require("fs"), 1);
-var import_node_path4 = __toESM(require("path"), 1);
-init_source();
-init_paths();
-init_index_md();
-init_html();
-init_output();
-var CLAUDE_MD_POINTER = `
-## Issue ledger
-
-This project uses \`claude-issues\` for cross-session issue tracking. Read \`.claude-issues/INDEX.md\` to see what's open, fixed, and archived before starting work. Browser view: \`.claude-issues/_html/index.html\`. See https://www.npmjs.com/package/claude-issues.
-`;
-function init() {
-  const paths = resolvePaths();
-  import_node_fs5.default.mkdirSync(paths.open, { recursive: true });
-  import_node_fs5.default.mkdirSync(paths.fixed, { recursive: true });
-  import_node_fs5.default.mkdirSync(paths.archive, { recursive: true });
-  import_node_fs5.default.mkdirSync(paths.html, { recursive: true });
-  regenerateIndex(paths);
-  regenerateHtml(paths);
-  const giAttr = import_node_path4.default.join(paths.root, ".gitignore");
-  if (!import_node_fs5.default.existsSync(giAttr)) {
-    import_node_fs5.default.writeFileSync(giAttr, "_html/\n", "utf8");
-  }
-  const claudeMd = import_node_path4.default.join(paths.cwd, "CLAUDE.md");
-  if (import_node_fs5.default.existsSync(claudeMd)) {
-    const current = import_node_fs5.default.readFileSync(claudeMd, "utf8");
-    if (!current.includes(".claude-issues/INDEX.md")) {
-      import_node_fs5.default.writeFileSync(claudeMd, current + CLAUDE_MD_POINTER, "utf8");
-      console.log(source_default.green("\u2713"), "Appended pointer to CLAUDE.md");
-    }
-  }
-  console.log(source_default.green("\u2713"), `Initialized ${source_default.cyan(".claude-issues/")} in ${paths.cwd}`);
-  console.log(`  ${source_default.dim("\u2192")} ${source_default.cyan(".claude-issues/INDEX.md")}`);
-  console.log(`  ${source_default.dim("\u2192")} ${source_default.cyan(".claude-issues/open/")}, ${source_default.cyan("fixed/")}, ${source_default.cyan("archive/")}`);
-  console.log(`  ${source_default.dim("\u2192")} ${source_default.cyan(".claude-issues/_html/index.html")} (browser view)`);
-  printViewerLink(paths);
-}
+init_init();
 
 // src/commands/add.ts
 var import_node_path6 = __toESM(require("path"), 1);
 init_source();
 var import_prompts = __toESM(require_prompts3(), 1);
 init_paths();
+init_init();
 init_storage();
 init_ids();
 init_index_md();
@@ -16429,7 +16439,7 @@ init_output();
 init_types();
 async function add(opts) {
   const paths = resolvePaths();
-  ensureInitialized(paths);
+  bootstrap(paths);
   let { title, severity, files, description } = opts;
   if (!title || !severity) {
     const answers = await (0, import_prompts.default)(
@@ -16564,6 +16574,7 @@ function findRelated(all, title, files) {
 init_source();
 var import_cli_table3 = __toESM(require_cli_table3(), 1);
 init_paths();
+init_init();
 init_storage();
 init_types();
 init_output();
@@ -16582,7 +16593,7 @@ var STATUS_COLORS = {
 };
 function list2(opts) {
   const paths = resolvePaths();
-  ensureInitialized(paths);
+  bootstrap(paths);
   let issues;
   let label;
   if (opts.all) {
@@ -16645,16 +16656,17 @@ function linkSummary2(i) {
 }
 
 // src/commands/show.ts
-var import_node_fs7 = __toESM(require("fs"), 1);
+var import_node_fs6 = __toESM(require("fs"), 1);
 var import_node_path7 = __toESM(require("path"), 1);
 init_source();
 init_paths();
+init_init();
 init_ids();
 init_storage();
 init_output();
 function show(id) {
   const paths = resolvePaths();
-  ensureInitialized(paths);
+  bootstrap(paths);
   const file = findIssueFile(paths, id);
   if (!file) {
     console.error(source_default.red("\u2717"), `No issue found matching ${source_default.cyan(id)}`);
@@ -16662,7 +16674,7 @@ function show(id) {
   }
   console.log(source_default.dim(import_node_path7.default.relative(paths.cwd, file)));
   console.log(source_default.dim("\u2500".repeat(60)));
-  process.stdout.write(import_node_fs7.default.readFileSync(file, "utf8"));
+  process.stdout.write(import_node_fs6.default.readFileSync(file, "utf8"));
   const issue = readIssue(file);
   console.log();
   printViewerLink(paths, issue);
@@ -16671,6 +16683,7 @@ function show(id) {
 // src/commands/fix.ts
 init_source();
 init_paths();
+init_init();
 init_ids();
 init_storage();
 init_index_md();
@@ -16680,6 +16693,7 @@ init_output();
 // src/commands/note.ts
 init_source();
 init_paths();
+init_init();
 init_ids();
 init_storage();
 init_index_md();
@@ -16704,7 +16718,7 @@ ${line}
 }
 function note(id, text) {
   const paths = resolvePaths();
-  ensureInitialized(paths);
+  bootstrap(paths);
   const file = findIssueFile(paths, id);
   if (!file) {
     console.error(source_default.red("\u2717"), `No issue found matching ${source_default.cyan(id)}`);
@@ -16726,7 +16740,7 @@ function note(id, text) {
 // src/commands/fix.ts
 function fix(id, opts) {
   const paths = resolvePaths();
-  ensureInitialized(paths);
+  bootstrap(paths);
   const file = findIssueFile(paths, id);
   if (!file) {
     console.error(source_default.red("\u2717"), `No issue found matching ${source_default.cyan(id)}`);
@@ -16753,6 +16767,7 @@ function fix(id, opts) {
 // src/commands/reopen.ts
 init_source();
 init_paths();
+init_init();
 init_ids();
 init_storage();
 init_index_md();
@@ -16760,7 +16775,7 @@ init_html();
 init_output();
 function reopen(id) {
   const paths = resolvePaths();
-  ensureInitialized(paths);
+  bootstrap(paths);
   const file = findIssueFile(paths, id);
   if (!file) {
     console.error(source_default.red("\u2717"), `No issue found matching ${source_default.cyan(id)}`);
@@ -16788,6 +16803,7 @@ init_link();
 // src/commands/wontfix.ts
 init_source();
 init_paths();
+init_init();
 init_ids();
 init_storage();
 init_index_md();
@@ -16795,7 +16811,7 @@ init_html();
 init_output();
 function wontfix(id, opts) {
   const paths = resolvePaths();
-  ensureInitialized(paths);
+  bootstrap(paths);
   const file = findIssueFile(paths, id);
   if (!file) {
     console.error(source_default.red("\u2717"), `No issue found matching ${source_default.cyan(id)}`);
@@ -16821,12 +16837,13 @@ function wontfix(id, opts) {
 init_source();
 var import_node_child_process = require("child_process");
 init_paths();
+init_init();
 init_ids();
 init_storage();
 init_html();
 function view(id, opts) {
   const paths = resolvePaths();
-  ensureInitialized(paths);
+  bootstrap(paths);
   regenerateHtml(paths);
   let url;
   if (id) {
@@ -16851,10 +16868,11 @@ function view(id, opts) {
 
 // src/commands/serve.ts
 var import_node_http = __toESM(require("http"), 1);
-var import_node_fs8 = __toESM(require("fs"), 1);
+var import_node_fs7 = __toESM(require("fs"), 1);
 var import_node_path8 = __toESM(require("path"), 1);
 init_source();
 init_paths();
+init_init();
 init_html();
 var MIME = {
   ".html": "text/html; charset=utf-8",
@@ -16866,7 +16884,7 @@ var MIME = {
 };
 async function serve(opts) {
   const paths = resolvePaths();
-  ensureInitialized(paths);
+  bootstrap(paths);
   regenerateHtml(paths);
   const port = opts.port ? Number.parseInt(opts.port, 10) : 47829;
   if (Number.isNaN(port) || port < 1 || port > 65535) {
@@ -16884,7 +16902,7 @@ async function serve(opts) {
       res.end("forbidden");
       return;
     }
-    import_node_fs8.default.readFile(target, (err, data) => {
+    import_node_fs7.default.readFile(target, (err, data) => {
       if (err) {
         res.writeHead(404, { "content-type": "text/plain" });
         res.end("not found");
@@ -16920,7 +16938,7 @@ async function serve(opts) {
 
 // src/cli.ts
 var program2 = new Command();
-program2.name("claude-issues").description("Persistent markdown issue ledger for Claude Code projects.").version("0.3.1");
+program2.name("claude-issues").description("Persistent markdown issue ledger for Claude Code projects.").version("0.3.2");
 program2.command("init").description("Create .claude-issues/ in the current directory").action(wrap2(() => init()));
 program2.command("add").description("Add a new open issue").option("-t, --title <title>", "Issue title").option("-s, --severity <severity>", "low | medium | high | critical").option("-f, --files <files>", "Comma-separated file paths").option("-d, --description <text>", "Short description").option("--supersedes <id>", "Mark this new issue as a replacement for an older issue").option("--no-scan", "Skip the duplicate-detection scan").action(wrap2((opts) => add(opts)));
 program2.command("list").alias("ls").description("List issues (default: open)").option("--open", "Open issues only (default)").option("--fixed", "Fixed issues only").option("--archive", "Archived issues only (wontfix \xB7 superseded \xB7 duplicate)").option("--all", "All issues").action(wrap2((opts) => list2(opts)));

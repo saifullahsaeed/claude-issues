@@ -1,7 +1,8 @@
 import path from "node:path";
 import chalk from "chalk";
 import prompts from "prompts";
-import { resolvePaths, ensureInitialized } from "../paths.js";
+import { resolvePaths } from "../paths.js";
+import { bootstrap } from "./init.js";
 import { writeIssue, listAll } from "../storage.js";
 import { fileNameFor, nextId } from "../ids.js";
 import { regenerateIndex } from "../index-md.js";
@@ -20,7 +21,7 @@ interface AddOptions {
 
 export async function add(opts: AddOptions): Promise<void> {
   const paths = resolvePaths();
-  ensureInitialized(paths);
+  bootstrap(paths);
 
   let { title, severity, files, description } = opts;
 

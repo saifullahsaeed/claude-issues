@@ -1,5 +1,6 @@
 import chalk from "chalk";
-import { resolvePaths, ensureInitialized, dirForStatus } from "../paths.js";
+import { resolvePaths, dirForStatus } from "../paths.js";
+import { bootstrap } from "./init.js";
 import { findIssueFile } from "../ids.js";
 import { readIssue, writeIssue, moveIssue } from "../storage.js";
 import { regenerateIndex } from "../index-md.js";
@@ -13,7 +14,7 @@ interface WontfixOptions {
 
 export function wontfix(id: string, opts: WontfixOptions): void {
   const paths = resolvePaths();
-  ensureInitialized(paths);
+  bootstrap(paths);
 
   const file = findIssueFile(paths, id);
   if (!file) {

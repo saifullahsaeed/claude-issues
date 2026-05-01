@@ -1,6 +1,7 @@
 import chalk from "chalk";
 import Table from "cli-table3";
-import { resolvePaths, ensureInitialized } from "../paths.js";
+import { resolvePaths } from "../paths.js";
+import { bootstrap } from "./init.js";
 import { listOpen, listFixed, listArchive, listAll } from "../storage.js";
 import { SEVERITY_RANK, type Issue, type Severity, type Status } from "../types.js";
 import { printViewerLink } from "../output.js";
@@ -29,7 +30,7 @@ const STATUS_COLORS: Record<Status, (s: string) => string> = {
 
 export function list(opts: ListOptions): void {
   const paths = resolvePaths();
-  ensureInitialized(paths);
+  bootstrap(paths);
 
   let issues: Issue[];
   let label: string;

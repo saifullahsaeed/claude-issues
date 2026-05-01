@@ -1,6 +1,7 @@
 import chalk from "chalk";
 import { spawn } from "node:child_process";
-import { resolvePaths, ensureInitialized } from "../paths.js";
+import { resolvePaths } from "../paths.js";
+import { bootstrap } from "./init.js";
 import { findIssueFile } from "../ids.js";
 import { readIssue } from "../storage.js";
 import { regenerateHtml, htmlUrlFor } from "../html.js";
@@ -11,7 +12,7 @@ interface ViewOptions {
 
 export function view(id: string | undefined, opts: ViewOptions): void {
   const paths = resolvePaths();
-  ensureInitialized(paths);
+  bootstrap(paths);
   regenerateHtml(paths);
 
   let url: string;

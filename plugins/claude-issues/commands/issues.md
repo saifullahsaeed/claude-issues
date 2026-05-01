@@ -43,6 +43,13 @@ markdown link (e.g. `[View ledger](file:///…)` or `[View ledger](http://localh
 not clickable.
 
 If a `file://` link is not clickable in the user's environment (some
-chat UIs strip them), suggest `/issues serve` — that gives them a
-clickable `http://localhost:<port>/` URL that works everywhere. If
-`.claude-issues/` doesn't exist yet, suggest `/issues init`.
+chat UIs strip them), suggest `/claude-issues:issues serve` — that gives
+them a clickable `http://localhost:<port>/` URL that works everywhere.
+
+You do **not** need to suggest `init` — every CLI subcommand
+auto-creates `.claude-issues/` if it's missing. The `init` command still
+exists for users who want the explicit setup output.
+
+Note: depending on Claude Code version and naming conflicts, this
+command may show in autocomplete as either `/issues` or the fully
+namespaced `/claude-issues:issues`. Both invoke this file.

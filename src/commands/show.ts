@@ -1,14 +1,15 @@
 import fs from "node:fs";
 import path from "node:path";
 import chalk from "chalk";
-import { resolvePaths, ensureInitialized } from "../paths.js";
+import { resolvePaths } from "../paths.js";
+import { bootstrap } from "./init.js";
 import { findIssueFile } from "../ids.js";
 import { readIssue } from "../storage.js";
 import { printViewerLink } from "../output.js";
 
 export function show(id: string): void {
   const paths = resolvePaths();
-  ensureInitialized(paths);
+  bootstrap(paths);
 
   const file = findIssueFile(paths, id);
   if (!file) {

@@ -1,5 +1,6 @@
 import chalk from "chalk";
-import { resolvePaths, ensureInitialized } from "../paths.js";
+import { resolvePaths } from "../paths.js";
+import { bootstrap } from "./init.js";
 import { findIssueFile } from "../ids.js";
 import { readIssue, writeIssue } from "../storage.js";
 import { regenerateIndex } from "../index-md.js";
@@ -23,7 +24,7 @@ export function appendFixNote(issue: Issue, text: string): Issue {
 
 export function note(id: string, text: string): void {
   const paths = resolvePaths();
-  ensureInitialized(paths);
+  bootstrap(paths);
 
   const file = findIssueFile(paths, id);
   if (!file) {

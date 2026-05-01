@@ -31,19 +31,23 @@ install from npm.
 
 ## Quick start
 
-In any project:
+In any project, just start using it — the ledger auto-creates on first
+use:
 
 ```
-/issues init
-/issues add
-/issues list
-/issues view
+/claude-issues:issues add
+/claude-issues:issues list
+/claude-issues:issues view     # opens .claude-issues/_html/index.html in your browser
+/claude-issues:issues serve    # for a clickable http://localhost URL
 ```
 
-Once `.claude-issues/` exists, the bundled `claude-issues` skill
-auto-activates: Claude reads the ledger first, checks for past similar
-fixes before starting new work, and posts a clickable browser URL at the
-end of any reply that touched issues.
+The bundled `claude-issues` skill auto-activates whenever you ask Claude
+to fix or investigate something: it reads the ledger first, checks for
+past similar fixes before starting new work, and posts a browser URL at
+the end of any reply that touched issues.
+
+Depending on Claude Code version and conflicts, the slash command may
+also show as just `/issues` in autocomplete. Both forms work.
 
 ## Statuses
 
@@ -61,22 +65,24 @@ and contribute to the audit trail. Closed issues live in `archive/`
 
 ## Slash command
 
-The `/issues` command in Claude Code wraps everything:
+The `/claude-issues:issues` command in Claude Code wraps everything
+(may also be available as just `/issues`):
 
 | Subcommand | What it does |
 |---|---|
-| `/issues init` | Create `.claude-issues/` in the current project |
-| `/issues add` | Add an issue (interactive); warns if similar past issues exist |
-| `/issues list` / `list fixed` / `list archive` / `list all` | List issues |
-| `/issues show <id>` | Print an issue's full markdown |
-| `/issues fix <id> "<note>"` | Mark fixed; move to `fixed/` |
-| `/issues wontfix <id> "<note>"` | Close without fixing |
-| `/issues reopen <id>` | Move any closed issue back to `open/` |
-| `/issues note <id> "<text>"` | Append a timestamped progress note |
-| `/issues link <id> supersedes <old>` | New issue replaces an older one |
-| `/issues link <id> duplicate-of <other>` | Mark `<id>` as a duplicate |
-| `/issues link <id> related <other>` | Add a bidirectional related link |
-| `/issues view [id]` | Open the browser viewer |
+| `add` | Add an issue (interactive); warns if similar past issues exist |
+| `list` / `list fixed` / `list archive` / `list all` | List issues |
+| `show <id>` | Print an issue's full markdown |
+| `fix <id> "<note>"` | Mark fixed; move to `fixed/` |
+| `wontfix <id> "<note>"` | Close without fixing |
+| `reopen <id>` | Move any closed issue back to `open/` |
+| `note <id> "<text>"` | Append a timestamped progress note |
+| `link <id> supersedes <old>` | New issue replaces an older one |
+| `link <id> duplicate-of <other>` | Mark `<id>` as a duplicate |
+| `link <id> related <other>` | Add a bidirectional related link |
+| `view [id]` | Open the browser viewer (file://) |
+| `serve [port]` | Start a local HTTP server for a clickable http://localhost URL |
+| `init` | Optional — every other command auto-creates the ledger if missing |
 
 IDs accept `1`, `001`, or `ISSUE-001` interchangeably.
 
