@@ -1,0 +1,27 @@
+export type Severity = "low" | "medium" | "high" | "critical";
+export type Status = "open" | "fixed";
+
+export interface IssueFrontmatter {
+  id: string;
+  title: string;
+  status: Status;
+  severity: Severity;
+  files: string[];
+  created: string;
+  fixed_at: string | null;
+}
+
+export interface Issue {
+  frontmatter: IssueFrontmatter;
+  body: string;
+  filePath: string;
+}
+
+export const SEVERITIES: Severity[] = ["low", "medium", "high", "critical"];
+
+export const SEVERITY_RANK: Record<Severity, number> = {
+  critical: 0,
+  high: 1,
+  medium: 2,
+  low: 3,
+};

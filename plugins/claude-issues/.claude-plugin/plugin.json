@@ -1,0 +1,9 @@
+{
+  "name": "claude-issues",
+  "version": "0.1.0",
+  "description": "Persistent markdown issue ledger so Claude knows what's open vs. fixed across sessions.",
+  "author": {
+    "name": "Saifullah Saeed"
+  },
+  "keywords": ["issues", "tracking", "workflow", "cli"]
+}

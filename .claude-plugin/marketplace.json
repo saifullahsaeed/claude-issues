@@ -1,0 +1,16 @@
+{
+  "name": "claude-issues",
+  "owner": {
+    "name": "Saifullah Saeed"
+  },
+  "plugins": [
+    {
+      "name": "claude-issues",
+      "source": "./plugins/claude-issues",
+      "description": "Persistent markdown issue ledger so Claude knows what's open vs. fixed across sessions.",
+      "version": "0.1.0",
+      "category": "workflow",
+      "tags": ["issues", "tracking", "workflow", "cli"]
+    }
+  ]
+}

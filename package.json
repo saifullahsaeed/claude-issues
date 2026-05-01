@@ -1,0 +1,43 @@
+{
+  "name": "claude-issues",
+  "version": "0.1.0",
+  "description": "Persistent markdown-based issue ledger for Claude Code projects. Tracks open and fixed issues across sessions.",
+  "keywords": [
+    "claude",
+    "claude-code",
+    "issues",
+    "tracker",
+    "cli"
+  ],
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "claude-issues": "dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "start": "node dist/cli.js",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "chalk": "^5.3.0",
+    "cli-table3": "^0.6.5",
+    "commander": "^12.1.0",
+    "gray-matter": "^4.0.3",
+    "prompts": "^2.4.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "@types/prompts": "^2.4.9",
+    "tsup": "^8.2.4",
+    "typescript": "^5.5.4"
+  }
+}
